@@ -1,47 +1,47 @@
 #!/usr/bin/python3
-+
-+import subprocess
-+import math
-+import re
-+
-+execute = "echo 'queue.statistics()' | tarantoolctl connect IP:PORT"
-+
-+warning = 10
-+critical = 100
-+
-+try:
-+    cmd = subprocess.run(execute, check=True, shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
-+    out = cmd.stdout.decode()
-+except subprocess.CalledProcessError as e:
-+    print("CRITICAL: Connection failed!")
-+    exit(2)
-+
-+try:
-+    regex = re.compile("put: (\d+)")
-+    put = regex.search(out).group(1)
-+except:
-+    print("UNKNOWN: no valid put value: [ %s ]" % str(out))
-+    exit(3)
-+
-+try:
-+    regex = re.compile("ack: (\d+)")
-+    ack = regex.search(out).group(1)
-+except:
-+    print("UNKNOWN: no valid ack value: [ %s ]" % str(out))
-+    exit(3)
-+
-+try:
-+    delta = int(math.fabs(int(put)-int(ack)))
-+except ValueError:
-+    print("UNKNOWN: no valid put/ack values '%s' '%s'" % (str(put), str(ack)))
-+    exit(3)
-+
-+if warning <= delta < critical :
-+    print("WARNING: PUT-ACK=%s" % str(delta))
-+    exit(1)
-+elif delta >= critical :
-+    print("CRITICAL: PUT-ACK=%s" % str(delta))
-+    exit(2)
-+elif delta < warning :
-+    print("OK: PUT-ACK=%s" % str(delta))
-+    exit(0)
+
+import subprocess
+import math
+import re
+
+execute = "echo 'queue.statistics()' | tarantoolctl connect IP:PORT"
+
+warning = 10
+critical = 100
+
+try:
+    cmd = subprocess.run(execute, check=True, shell=True, stderr=subprocess.DEVNULL, stdout=subprocess.PIPE)
+    out = cmd.stdout.decode()
+except subprocess.CalledProcessError as e:
+    print("CRITICAL: Connection failed!")
+    exit(2)
+
+try:
+    regex = re.compile("put: (\d+)")
+    put = regex.search(out).group(1)
+except:
+    print("UNKNOWN: no valid put value: [ %s ]" % str(out))
+    exit(3)
+
+try:
+    regex = re.compile("ack: (\d+)")
+    ack = regex.search(out).group(1)
+except:
+    print("UNKNOWN: no valid ack value: [ %s ]" % str(out))
+    exit(3)
+
+try:
+    delta = int(math.fabs(int(put)-int(ack)))
+except ValueError:
+    print("UNKNOWN: no valid put/ack values '%s' '%s'" % (str(put), str(ack)))
+    exit(3)
+
+if warning <= delta < critical :
+    print("WARNING: PUT-ACK=%s" % str(delta))
+    exit(1)
+elif delta >= critical :
+    print("CRITICAL: PUT-ACK=%s" % str(delta))
+    exit(2)
+elif delta < warning :
+    print("OK: PUT-ACK=%s" % str(delta))
+    exit(0)
